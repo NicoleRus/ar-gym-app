@@ -1,16 +1,37 @@
-# ar_app
+# AR Fitness and Nutrition app
 
-A new Flutter project.
+Interested in joining our community? Learn more about us on [our website](https://www.arfitnessandnutrition.com/).
 
-## Getting Started
+## Features / Tasks
 
-This project is a starting point for a Flutter application.
+In order of priority
 
-A few resources to get you started if this is your first Flutter project:
+1. Memberships
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- log in
+- update payment information
+- update membership details
+- update personal information
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+2. Access resources
+
+- space for free resources
+- space for resources purchased
+
+3. Workouts
+
+- Coaches log workouts
+- Members record workout
+- Workout tracking (see progress over time)
+- space to record PRs
+
+4. Nutrition
+
+- Ideally, connect to MFP
+  - If not, add ability to log food
+- Track protein, carbs, fat, and calories over time
+- Track weight over time
+
+## Technical details
+
+- Uses Nova Flutter library
