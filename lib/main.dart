@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'pages/auth_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url:
+        'https://aojhsonruextcceqkhse.supabase.co', // replace with your actual Supabase project URL
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvamhzb25ydWV4dGNjZXFraHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwNzI5NzMsImV4cCI6MjA1OTY0ODk3M30.yAqaZ1lLnhC_FZpH1gWXZkDCV8yUc3LsEScwREI5Cdo', // replace with your anon/public key
+  );
+
   runApp(const MyApp());
 }
 
@@ -12,7 +23,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Nutrition Tracker',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const NutritionLogScreen(),
+      home:
+          Supabase.instance.client.auth.currentUser == null
+              ? const AuthPage()
+              : const NutritionLogScreen(),
     );
   }
 }
@@ -34,7 +48,7 @@ class _NutritionLogScreenState extends State<NutritionLogScreen> {
 
   void _saveEntry() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Save the data somewhere (e.g., local storage, Supabase, etc.)
+      // TODO: Save the data to Supabase
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Entry saved!')));
