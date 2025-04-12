@@ -1,74 +1,89 @@
-import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart'; // still needed for base layout
+import 'package:visa_nova_flutter/visa_nova_flutter.dart';
+import '../services/auth_service.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
   @override
-  State<AuthPage> createState() => _AuthPageState();
+  State<AuthPage> createState() => AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool isLogin = true;
+class AuthPageState extends State<AuthPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isSignIn = true;
 
-  Future<void> _handleAuth() async {
+  void _toggleAuthMode() {
+    setState(() => _isSignIn = !_isSignIn);
+  }
+
+  Future<void> _submit() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    try {
-      final supabase = Supabase.instance.client;
-
-      if (isLogin) {
-        await supabase.auth.signInWithPassword(
-          email: email,
-          password: password,
-        );
-      } else {
-        await supabase.auth.signUp(email: email, password: password);
-      }
-
-      setState(() {}); // trigger rebuild to go to NutritionLogScreen
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    if (_isSignIn) {
+      await AuthService.signIn(email, password);
+    } else {
+      await AuthService.signUp(email, password);
     }
+
+    // TODO: Add navigation or visual feedback
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(isLogin ? 'Login' : 'Sign Up')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _handleAuth,
-              child: Text(isLogin ? 'Login' : 'Sign Up'),
-            ),
-            TextButton(
-              onPressed: () => setState(() => isLogin = !isLogin),
-              child: Text(
-                isLogin
-                    ? "Don't have an account? Sign up"
-                    : "Already have an account? Login",
+      backgroundColor: VColors.defaultSurface1,
+      body: Center(
+        child: VPanel(
+          isFullScreen: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _isSignIn ? 'Sign In' : 'Sign Up',
+                style: defaultVTheme.textStyles.subtitle1.copyWith(
+                  color: VColors.defaultActive,
+                  height: 1.2778,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                _isSignIn
+                    ? 'Welcome back! Please sign in to continue.'
+                    : 'Create a new account to get started.',
+                style: defaultVTheme.textStyles.bodyText2Medium.copyWith(
+                  color: VColors.defaultActive,
+                  height: 1.2778,
+                ),
+              ),
+              const SizedBox(height: 24),
+              VInput(
+                myLocalController: _emailController,
+                topLabelText: 'Email',
+              ),
+              const SizedBox(height: 16),
+              VInput(
+                myLocalController: _passwordController,
+                topLabelText: 'Password',
+                hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
+              ),
+              const SizedBox(height: 24),
+              VButton(
+                onPressed: _submit,
+                child: Text(_isSignIn ? 'Sign In' : 'Sign Up'),
+              ),
+              const SizedBox(height: 12),
+              VLink(
+                title:
+                    _isSignIn
+                        ? 'Don’t have an account? Sign Up'
+                        : 'Already have an account? Sign In',
+                onPressed: _toggleAuthMode,
+              ),
+            ],
+          ),
         ),
       ),
     );
