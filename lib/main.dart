@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'pages/auth_page.dart';
+import 'pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,9 +22,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Nutrition Tracker',
+      title: 'AR Fitness and Nutrition',
       theme: ThemeData(primarySwatch: Colors.red),
       home: const AuthPage(), // Start with Auth Screen
+      routes: {
+        '/home': (context) => const HomePage(),
+        '/auth': (context) => const AuthPage(), // Add routes for other pages
+      },
     );
   }
 }
