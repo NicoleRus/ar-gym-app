@@ -13,23 +13,50 @@ class AuthPage extends StatefulWidget {
 class AuthPageState extends State<AuthPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _isSignIn = true;
+  bool _obscurePassword = true;
+  String? _errorMessage;
+  String? _emailError;
+  String? _passwordError;
+  bool _isLoading = false;
 
   void _toggleAuthMode() {
-    setState(() => _isSignIn = !_isSignIn);
+    setState(() {
+      _isSignIn = !_isSignIn;
+      _errorMessage = null;
+    });
   }
 
   Future<void> _submit() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        _emailError =
+            _emailController.text.isEmpty ? 'Email is required' : null;
+        _passwordError =
+            _passwordController.text.isEmpty ? 'Password is required' : null;
+      });
 
-    if (_isSignIn) {
-      await AuthService.signIn(email, password);
-    } else {
-      await AuthService.signUp(email, password);
+      if (_emailError != null || _passwordError != null) return;
+
+      setState(() => _isLoading = true);
+
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      try {
+        if (_isSignIn) {
+          await AuthService.signIn(email, password);
+        } else {
+          await AuthService.signUp(email, password);
+        }
+        setState(() => _isLoading = false);
+      } catch (e) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
     }
-
-    // TODO: Add navigation or visual feedback
   }
 
   @override
@@ -61,28 +88,80 @@ class AuthPageState extends State<AuthPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                VInput(
-                  myLocalController: _emailController,
-                  topLabelText: 'Email',
-                ),
-                const SizedBox(height: 16),
-                VInput(
-                  myLocalController: _passwordController,
-                  topLabelText: 'Password',
-                  hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
-                ),
+                if (_errorMessage != null)
+                  VSectionMessage(
+                    hasClose: true,
+                    hasTitle: true,
+                    visible: true,
+                    link: "Close",
+                    sectionMessageState: SectionMessageState.error,
+                    title: "Error",
+                    description:
+                        _errorMessage ??
+                        _emailError ??
+                        _passwordError ??
+                        'An unknown error occurred.',
+                  ),
                 const SizedBox(height: 24),
-                VButton(
-                  onPressed: _submit,
-                  child: Text(_isSignIn ? 'Sign In' : 'Sign Up'),
-                ),
-                const SizedBox(height: 12),
-                VLink(
-                  title:
-                      _isSignIn
-                          ? 'Don’t have an account? Sign Up'
-                          : 'Already have an account? Sign In',
-                  onPressed: _toggleAuthMode,
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      VInput(
+                        myLocalController: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+
+                        topLabelText: 'Email',
+                        //                         validator: (value) {
+                        //   if (value == null || value.isEmpty) return 'Email required';
+                        //   final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
+                        //   if (!emailRegex.hasMatch(value)) return 'Invalid email';
+                        //   return null;
+                        // },
+                      ),
+                      const SizedBox(height: 16),
+                      VInput(
+                        myLocalController: _passwordController,
+                        topLabelText: 'Password',
+                        hideText: _obscurePassword,
+                        hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
+                        suffix: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        // validator: (value) {
+                        //   if (value == null || value.isEmpty) return 'Password required';
+                        //   if (value.length < 6) return 'Min 6 characters';
+                        //   return null;
+                        // },
+                      ),
+                      const SizedBox(height: 24),
+                      VButton(
+                        onPressed: _isLoading ? null : _submit,
+                        child: Text(
+                          _isLoading
+                              ? 'Please wait...'
+                              : (_isSignIn ? 'Sign In' : 'Sign Up'),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      VLink(
+                        title:
+                            _isSignIn
+                                ? 'Don’t have an account? Sign Up'
+                                : 'Already have an account? Sign In',
+                        onPressed: _toggleAuthMode,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
