@@ -59,8 +59,10 @@ class MainLayout extends StatelessWidget {
                 : null,
       ),
       drawer: user != null ? _buildDrawer(context) : null,
-      body:
-          child, // This is where the child content (home page, auth page) gets inserted
+      body: Container(
+        color: Colors.white, // Set your desired background color here
+        child: SingleChildScrollView(child: child),
+      ), // This is where the child content (home page, auth page) gets inserted
     );
   }
 

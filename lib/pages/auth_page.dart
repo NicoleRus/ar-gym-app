@@ -75,113 +75,110 @@ class AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return MainLayout(
-      child: Scaffold(
-        backgroundColor: VColors.defaultSurface1,
-        body: Center(
-          child: VPanel(
-            isFullScreen: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _isSignIn ? 'Sign In' : 'Sign Up',
-                  style: defaultVTheme.textStyles.subtitle1.copyWith(
-                    color: VColors.defaultActive,
-                    height: 1.2778,
-                  ),
+      child: Center(
+        child: VPanel(
+          isFullScreen: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _isSignIn ? 'Sign In' : 'Sign Up',
+                style: defaultVTheme.textStyles.subtitle1.copyWith(
+                  color: VColors.defaultActive,
+                  height: 1.2778,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  _isSignIn
-                      ? 'Welcome back! Please sign in to continue.'
-                      : 'Create a new account to get started.',
-                  style: defaultVTheme.textStyles.bodyText2Medium.copyWith(
-                    color: VColors.defaultActive,
-                    height: 1.2778,
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _isSignIn
+                    ? 'Welcome back! Please sign in to continue.'
+                    : 'Create a new account to get started.',
+                style: defaultVTheme.textStyles.bodyText2Medium.copyWith(
+                  color: VColors.defaultActive,
+                  height: 1.2778,
                 ),
-                const SizedBox(height: 24),
-                if (_errorMessage != null)
-                  VSectionMessage(
-                    hasClose: true,
-                    hasTitle: true,
-                    visible: true,
-                    link: "Close",
-                    onClosePressed:
-                        () => setState(() {
-                          _errorMessage = null;
-                        }),
-                    sectionMessageState: SectionMessageState.error,
-                    title: "Error",
-                    description:
-                        _errorMessage ??
-                        _emailError ??
-                        _passwordError ??
-                        'An unknown error occurred.',
-                  ),
-                const SizedBox(height: 24),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      VInput(
-                        myLocalController: _emailController,
-                        keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 24),
+              if (_errorMessage != null)
+                VSectionMessage(
+                  hasClose: true,
+                  hasTitle: true,
+                  visible: true,
+                  link: "Close",
+                  onClosePressed:
+                      () => setState(() {
+                        _errorMessage = null;
+                      }),
+                  sectionMessageState: SectionMessageState.error,
+                  title: "Error",
+                  description:
+                      _errorMessage ??
+                      _emailError ??
+                      _passwordError ??
+                      'An unknown error occurred.',
+                ),
+              const SizedBox(height: 24),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    VInput(
+                      myLocalController: _emailController,
+                      keyboardType: TextInputType.emailAddress,
 
-                        topLabelText: 'Email',
-                        //                         validator: (value) {
-                        //   if (value == null || value.isEmpty) return 'Email required';
-                        //   final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
-                        //   if (!emailRegex.hasMatch(value)) return 'Invalid email';
-                        //   return null;
-                        // },
-                      ),
-                      const SizedBox(height: 16),
-                      VInput(
-                        myLocalController: _passwordController,
-                        topLabelText: 'Password',
-                        hideText: _obscurePassword,
-                        hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
-                        suffix: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
+                      topLabelText: 'Email',
+                      //                         validator: (value) {
+                      //   if (value == null || value.isEmpty) return 'Email required';
+                      //   final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
+                      //   if (!emailRegex.hasMatch(value)) return 'Invalid email';
+                      //   return null;
+                      // },
+                    ),
+                    const SizedBox(height: 16),
+                    VInput(
+                      myLocalController: _passwordController,
+                      topLabelText: 'Password',
+                      hideText: _obscurePassword,
+                      hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
+                      suffix: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
-                        // validator: (value) {
-                        //   if (value == null || value.isEmpty) return 'Password required';
-                        //   if (value.length < 6) return 'Min 6 characters';
-                        //   return null;
-                        // },
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
                       ),
-                      const SizedBox(height: 24),
-                      VButton(
-                        onPressed: _isLoading ? null : _submit,
-                        child: Text(
-                          _isLoading
-                              ? 'Please wait...'
-                              : (_isSignIn ? 'Sign In' : 'Sign Up'),
-                        ),
+                      // validator: (value) {
+                      //   if (value == null || value.isEmpty) return 'Password required';
+                      //   if (value.length < 6) return 'Min 6 characters';
+                      //   return null;
+                      // },
+                    ),
+                    const SizedBox(height: 24),
+                    VButton(
+                      onPressed: _isLoading ? null : _submit,
+                      child: Text(
+                        _isLoading
+                            ? 'Please wait...'
+                            : (_isSignIn ? 'Sign In' : 'Sign Up'),
                       ),
-                      const SizedBox(height: 12),
-                      VLink(
-                        title:
-                            _isSignIn
-                                ? 'Don’t have an account? Sign Up'
-                                : 'Already have an account? Sign In',
-                        onPressed: _toggleAuthMode,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    VLink(
+                      title:
+                          _isSignIn
+                              ? 'Don’t have an account? Sign Up'
+                              : 'Already have an account? Sign In',
+                      onPressed: _toggleAuthMode,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
