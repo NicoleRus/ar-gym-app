@@ -10,6 +10,11 @@ class AuthService {
       password: password,
     );
 
+    print(email);
+    print(password);
+    print(response);
+    print(response.user);
+
     if (response.user == null) {
       throw Exception('Sign in failed');
     }

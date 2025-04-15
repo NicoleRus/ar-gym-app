@@ -1,4 +1,6 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart'; // still needed for base layout
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:visa_nova_flutter/visa_nova_flutter.dart';
 import '../main_layout.dart';
 import '../services/auth_service.dart';
@@ -30,9 +32,15 @@ class AuthPageState extends State<AuthPage> {
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
+      final email = _emailController.text.trim();
+
+      if (!EmailValidator.validate(email)) {
+        setState(() {
+          _errorMessage = 'Please enter a valid email address.';
+        });
+        return;
+      }
       setState(() {
-        _emailError =
-            _emailController.text.isEmpty ? 'Email is required' : null;
         _passwordError =
             _passwordController.text.isEmpty ? 'Password is required' : null;
       });
@@ -41,7 +49,6 @@ class AuthPageState extends State<AuthPage> {
 
       setState(() => _isLoading = true);
 
-      final email = _emailController.text.trim();
       final password = _passwordController.text;
 
       try {
@@ -51,9 +58,15 @@ class AuthPageState extends State<AuthPage> {
           await AuthService.signUp(email, password);
         }
         setState(() => _isLoading = false);
+      } on AuthException catch (e) {
+        setState(() {
+          _errorMessage = e.message; // already user-friendly!
+          _isLoading = false;
+        });
       } catch (e) {
         setState(() {
-          _errorMessage = e.toString();
+          _errorMessage = 'Something went wrong. Please try again.';
+          _isLoading = false;
         });
       }
     }
@@ -94,6 +107,10 @@ class AuthPageState extends State<AuthPage> {
                     hasTitle: true,
                     visible: true,
                     link: "Close",
+                    onClosePressed:
+                        () => setState(() {
+                          _errorMessage = null;
+                        }),
                     sectionMessageState: SectionMessageState.error,
                     title: "Error",
                     description:
