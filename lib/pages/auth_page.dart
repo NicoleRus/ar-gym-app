@@ -31,6 +31,7 @@ class AuthPageState extends State<AuthPage> {
   }
 
   Future<void> _submit() async {
+    if (_isLoading) return;
     if (_formKey.currentState?.validate() ?? false) {
       final email = _emailController.text.trim();
 
@@ -52,15 +53,21 @@ class AuthPageState extends State<AuthPage> {
       final password = _passwordController.text;
 
       try {
-        if (_isSignIn) {
-          await AuthService.signIn(email, password);
-        } else {
-          await AuthService.signUp(email, password);
+        final response =
+            _isSignIn
+                ? await AuthService.signIn(email, password)
+                : await AuthService.signUp(email, password);
+
+        if (response.user != null && mounted) {
+          Navigator.pushReplacementNamed(context, '/home');
         }
         setState(() => _isLoading = false);
       } on AuthException catch (e) {
         setState(() {
-          _errorMessage = e.message; // already user-friendly!
+          _errorMessage =
+              e.message.contains('Invalid login credentials')
+                  ? 'Invalid email or password. Please try again.'
+                  : e.message; // already user-friendly!
           _isLoading = false;
         });
       } catch (e) {
@@ -125,14 +132,8 @@ class AuthPageState extends State<AuthPage> {
                     VInput(
                       myLocalController: _emailController,
                       keyboardType: TextInputType.emailAddress,
-
+                      onSubmitted: (_) => _submit(),
                       topLabelText: 'Email',
-                      //                         validator: (value) {
-                      //   if (value == null || value.isEmpty) return 'Email required';
-                      //   final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
-                      //   if (!emailRegex.hasMatch(value)) return 'Invalid email';
-                      //   return null;
-                      // },
                     ),
                     const SizedBox(height: 16),
                     VInput(
@@ -140,6 +141,7 @@ class AuthPageState extends State<AuthPage> {
                       topLabelText: 'Password',
                       hideText: _obscurePassword,
                       hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
+                      onSubmitted: (_) => _submit(),
                       suffix: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -152,15 +154,10 @@ class AuthPageState extends State<AuthPage> {
                           });
                         },
                       ),
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) return 'Password required';
-                      //   if (value.length < 6) return 'Min 6 characters';
-                      //   return null;
-                      // },
                     ),
                     const SizedBox(height: 24),
                     VButton(
-                      onPressed: _isLoading ? null : _submit,
+                      onPressed: _submit,
                       child: Text(
                         _isLoading
                             ? 'Please wait...'

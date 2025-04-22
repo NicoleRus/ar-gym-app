@@ -18,7 +18,9 @@ class MainLayout extends StatelessWidget {
             .currentUser; // Get the current signed-in user
 
     return Scaffold(
+      backgroundColor: VColors.defaultSurface1,
       appBar: AppBar(
+        backgroundColor: VColors.defaultSurface1,
         title: Center(
           child: Semantics(
             label: 'AR Fitness Logo',
@@ -35,21 +37,21 @@ class MainLayout extends StatelessWidget {
                 ? Builder(
                   builder:
                       (context) => Semantics(
-                        label: "close",
+                        label: "Open navigation menu",
                         button: true,
                         child: InkWell(
                           customBorder: const CircleBorder(),
                           splashColor: VColors.defaultSurfaceLowlight,
-                          onTap: () => Navigator.pop(context),
+                          onTap: () => Scaffold.of(context).openDrawer(),
                           child: Container(
                             width: 44,
                             height: 44,
-                            padding: EdgeInsets.all(14),
+                            padding: const EdgeInsets.all(14),
                             child: const ExcludeSemantics(
                               child: VIcon(
-                                svgIcon: VIcons.closeTiny,
-                                iconHeight: 16,
-                                iconWidth: 16,
+                                svgIcon: VIcons.menuTiny,
+                                iconHeight: 24,
+                                iconWidth: 24,
                               ),
                             ),
                           ),
@@ -60,7 +62,7 @@ class MainLayout extends StatelessWidget {
       ),
       drawer: user != null ? _buildDrawer(context) : null,
       body: Container(
-        color: Colors.white, // Set your desired background color here
+        color: VColors.defaultSurface1,
         child: SingleChildScrollView(child: child),
       ), // This is where the child content (home page, auth page) gets inserted
     );
