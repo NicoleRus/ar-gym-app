@@ -1,41 +1,50 @@
 // Visa Nova Flutter Demo AppBar Page
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:visa_nova_icons_flutter/visa_nova_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:visa_nova_flutter/visa_nova_flutter.dart';
 
 class VAppBarDefault extends StatelessWidget implements PreferredSizeWidget {
-  const VAppBarDefault({Key? key}) : super(key: key);
+  final bool showHamburger;
+
+  const VAppBarDefault({Key? key, this.showHamburger = true}) : super(key: key);
   @override
   Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
+    final user = Supabase.instance.client.auth.currentUser;
+
     return VAppBar(
       backButtonAction: () {
         Navigator.pop(context);
       },
-      leading: Semantics(
-        label: "Menu",
-        button: true,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          splashColor: VColors.defaultSurfaceLowlight,
-          child: Container(
-            width: 44,
-            height: 44,
-            padding: const EdgeInsets.all(16),
-            child: const ExcludeSemantics(
-              child: VIcon(
-                iconColor: VColors.defaultActive,
-                svgIcon: VIcons.menuLow,
-                iconHeight: 24,
-                iconWidth: 24,
-              ),
-            ),
-          ),
-          onTap: () => Scaffold.of(context).openDrawer(),
-        ),
-      ),
+      leading:
+          showHamburger && user != null
+              ? // 🔥 only show if allowed
+              Semantics(
+                label: "Menu",
+                button: true,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  splashColor: VColors.defaultSurfaceLowlight,
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    padding: const EdgeInsets.all(16),
+                    child: const ExcludeSemantics(
+                      child: VIcon(
+                        iconColor: VColors.defaultActive,
+                        svgIcon: VIcons.menuLow,
+                        iconHeight: 24,
+                        iconWidth: 24,
+                      ),
+                    ),
+                  ),
+                  onTap: () => Scaffold.of(context).openDrawer(),
+                ),
+              )
+              : const SizedBox.shrink(),
       title: Stack(
         alignment: Alignment.center,
         children: [

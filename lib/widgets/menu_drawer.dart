@@ -106,6 +106,28 @@ class NavDrawer extends StatelessWidget {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: VDivider(dividerType: VDividerType.decorative),
+          ),
+          ListTile(
+            horizontalTitleGap: 10,
+            minLeadingWidth: 10,
+            leading: const VIcon(
+              iconHeight: 20,
+              iconWidth: 20,
+              svgIcon: VIcons.exportHigh,
+              iconColor: VColors.defaultActive,
+            ),
+            title: Text("Logout", style: defaultVTheme.textStyles.uiLabelLarge),
+            onTap: () async {
+              final navigator = Navigator.of(context); // grab it early
+
+              await Supabase.instance.client.auth.signOut();
+
+              navigator.pop(); // safe to pop after
+            },
+          ),
           const SizedBox(height: 32),
         ],
       ),

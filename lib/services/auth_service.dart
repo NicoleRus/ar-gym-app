@@ -16,15 +16,26 @@ class AuthService {
     return response;
   }
 
-  static Future<AuthResponse> signUp(String email, String password) async {
-    final response = await _client.auth.signUp(
+  static Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    required String name,
+    required String birthDate,
+  }) async {
+    final response = await Supabase.instance.client.auth.signUp(
       email: email,
       password: password,
     );
 
-    if (response.user == null) {
-      throw Exception('Sign up failed');
+    if (response.user != null) {
+      await Supabase.instance.client.from('profiles').insert({
+        'id': response.user!.id,
+        'email': email,
+        'full_name': name,
+        'birth_date': birthDate,
+      });
     }
+
     return response;
   }
 
