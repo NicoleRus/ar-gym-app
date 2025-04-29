@@ -12,7 +12,8 @@ class SignUpPage extends StatefulWidget {
 }
 
 class SignUpPageState extends State<SignUpPage> {
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -33,7 +34,8 @@ class SignUpPageState extends State<SignUpPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
-    final name = _nameController.text.trim();
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
     final birthDate = _birthDateController.text.trim();
 
     if (!EmailValidator.validate(email)) {
@@ -54,7 +56,8 @@ class SignUpPageState extends State<SignUpPage> {
       final response = await AuthService.signUp(
         email: email,
         password: password,
-        name: name,
+        firstName: firstName,
+        lastName: lastName,
         birthDate: birthDate,
       );
 
@@ -127,8 +130,14 @@ class SignUpPageState extends State<SignUpPage> {
           child: Column(
             children: [
               VInput(
-                myLocalController: _nameController,
-                topLabelText: 'Full Name',
+                myLocalController: _firstNameController,
+                topLabelText: 'First Name',
+                onSubmitted: (_) => _submit(),
+              ),
+              const SizedBox(height: 16),
+              VInput(
+                myLocalController: _lastNameController,
+                topLabelText: 'Last Name',
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),

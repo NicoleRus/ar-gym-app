@@ -19,7 +19,8 @@ class AuthService {
   static Future<AuthResponse> signUp({
     required String email,
     required String password,
-    required String name,
+    required String firstName,
+    required String lastName,
     required String birthDate,
   }) async {
     final response = await Supabase.instance.client.auth.signUp(
@@ -31,7 +32,8 @@ class AuthService {
       await Supabase.instance.client.from('profiles').insert({
         'id': response.user!.id,
         'email': email,
-        'full_name': name,
+        'first_name': firstName,
+        'last_name': lastName,
         'birth_date': birthDate,
       });
     }
