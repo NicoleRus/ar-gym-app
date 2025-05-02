@@ -1,7 +1,8 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:flutter/material.dart'; // still needed for base layout
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:visa_nova_flutter/visa_nova_flutter.dart';
+
 import '../services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -12,43 +13,124 @@ class SignUpPage extends StatefulWidget {
 }
 
 class SignUpPageState extends State<SignUpPage> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  final Map<String, FocusNode> _focusNodes = {};
+  final Map<String, String?> _errors = {};
+
+  bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
-  String? _emailError;
-  String? _passwordError;
-  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    for (final field in [
+      'firstName',
+      'lastName',
+      'birthDate',
+      'email',
+      'password',
+      'confirmPassword',
+    ]) {
+      _focusNodes[field] = FocusNode();
+      _errors[field] = null;
+
+      _focusNodes[field]!.addListener(() {
+        if (!_focusNodes[field]!.hasFocus) {
+          _validateField(field);
+        }
+      });
+    }
+  }
+
+  void _validateField(String field) {
+    final value = _getFieldValue(field);
+
+    switch (field) {
+      case 'firstName':
+      case 'lastName':
+        if (value.isEmpty || !RegExp(r"^[a-zA-Z\s'-]+$").hasMatch(value)) {
+          _setError(
+            field,
+            'Invalid ${field == 'firstName' ? 'First' : 'Last'} Name',
+          );
+        } else {
+          _setError(field, null);
+        }
+        break;
+
+      case 'birthDate':
+        try {
+          final parsed = DateTime.parse(value);
+          if (parsed.isAfter(DateTime.now())) {
+            _setError(field, 'Birth date cannot be in the future.');
+          } else {
+            _setError(field, null);
+          }
+        } catch (e) {
+          _setError(field, 'Invalid birth date.');
+        }
+        break;
+
+      case 'email':
+        if (!EmailValidator.validate(value)) {
+          _setError(field, 'Invalid email.');
+        } else {
+          _setError(field, null);
+        }
+        break;
+
+      case 'password':
+        if (value.isEmpty || value.length < 6) {
+          _setError(field, 'Password must be at least 6 characters.');
+        } else {
+          _setError(field, null);
+        }
+        break;
+
+      case 'confirmPassword':
+        if (value != _passwordController.text) {
+          _setError(field, 'Passwords do not match.');
+        } else {
+          _setError(field, null);
+        }
+        break;
+    }
+  }
 
   Future<void> _submit() async {
     if (_isLoading) return;
 
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() {
+      _errors.clear();
+      _errorMessage = null;
+    });
 
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
+    for (final field in _focusNodes.keys) {
+      _validateField(field);
+    }
+
+    final hasErrors = _errors.values.any((error) => error != null);
+    if (hasErrors) {
+      _scrollToFirstError();
+      return;
+    }
+
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
     final birthDate = _birthDateController.text.trim();
-
-    if (!EmailValidator.validate(email)) {
-      return _setError('Please enter a valid email address.');
-    }
-
-    if (password.isEmpty || confirmPassword.isEmpty) {
-      return _setError('Password fields cannot be empty.');
-    }
-
-    if (password != confirmPassword) {
-      return _setError('Passwords do not match.');
-    }
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
     setState(() => _isLoading = true);
 
@@ -68,21 +150,54 @@ class SignUpPageState extends State<SignUpPage> {
           _isLoading = false;
         });
       } else {
-        _setError('Something went wrong. Please try again.');
+        setState(() {
+          _errorMessage = 'Something went wrong. Please try again.';
+          _isLoading = false;
+        });
       }
-    } on AuthException catch (e) {
-      _setError(e.message);
     } catch (e) {
-      _setError('Something went wrong. Please try again.');
+      setState(() {
+        _errorMessage = 'Something went wrong during signup.';
+        _isLoading = false;
+      });
     }
   }
 
-  void _setError(String message) {
-    if (!mounted) return;
+  void _setError(String field, String? error) {
     setState(() {
-      _errorMessage = message;
-      _isLoading = false;
+      _errors[field] = error;
     });
+  }
+
+  String _getFieldValue(String field) {
+    switch (field) {
+      case 'firstName':
+        return _firstNameController.text.trim();
+      case 'lastName':
+        return _lastNameController.text.trim();
+      case 'birthDate':
+        return _birthDateController.text.trim();
+      case 'email':
+        return _emailController.text.trim();
+      case 'password':
+        return _passwordController.text;
+      case 'confirmPassword':
+        return _confirmPasswordController.text;
+      default:
+        return '';
+    }
+  }
+
+  void _scrollToFirstError() {
+    final firstInvalid = _errors.entries.firstWhere(
+      (entry) => entry.value != null,
+      orElse: () => const MapEntry('', null),
+    );
+
+    if (firstInvalid.key.isNotEmpty) {
+      final focusNode = _focusNodes[firstInvalid.key];
+      focusNode?.requestFocus();
+    }
   }
 
   @override
@@ -112,17 +227,10 @@ class SignUpPageState extends State<SignUpPage> {
             hasTitle: true,
             visible: true,
             link: "Close",
-            onClosePressed:
-                () => setState(() {
-                  _errorMessage = null;
-                }),
+            onClosePressed: () => setState(() => _errorMessage = null),
             sectionMessageState: SectionMessageState.error,
             title: "Error",
-            description:
-                _errorMessage ??
-                _emailError ??
-                _passwordError ??
-                'An unknown error occurred.',
+            description: _errorMessage!,
           ),
         const SizedBox(height: 24),
         Form(
@@ -131,47 +239,59 @@ class SignUpPageState extends State<SignUpPage> {
             children: [
               VInput(
                 myLocalController: _firstNameController,
+                inputFocusNode: _focusNodes['firstName'],
                 topLabelText: 'First Name',
+                errorText: _errors['firstName'] ?? '',
+                hasError: _errors['firstName'] != null,
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),
               VInput(
                 myLocalController: _lastNameController,
+                inputFocusNode: _focusNodes['lastName'],
                 topLabelText: 'Last Name',
+                errorText: _errors['lastName'] ?? '',
+                hasError: _errors['lastName'] != null,
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),
               VInput(
                 myLocalController: _birthDateController,
+                inputFocusNode: _focusNodes['birthDate'],
                 topLabelText: 'Birth Date',
-                onSubmitted: (_) {
-                  showDatePicker(
+                errorText: _errors['birthDate'] ?? '',
+                hasError: _errors['birthDate'] != null,
+                onSubmitted: (_) async {
+                  final pickedDate = await showDatePicker(
                     context: context,
                     initialDate: DateTime(2000, 1, 1),
                     firstDate: DateTime(1900),
                     lastDate: DateTime.now(),
-                  ).then((pickedDate) {
-                    if (pickedDate != null) {
-                      _birthDateController.text =
-                          pickedDate.toLocal().toString().split(' ')[0];
-                    }
-                  });
+                  );
+                  if (pickedDate != null) {
+                    _birthDateController.text =
+                        pickedDate.toLocal().toString().split(' ')[0];
+                  }
                 },
               ),
               const SizedBox(height: 16),
               VInput(
                 myLocalController: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                onSubmitted: (_) => _submit(),
+                inputFocusNode: _focusNodes['email'],
                 topLabelText: 'Email',
+                keyboardType: TextInputType.emailAddress,
+                errorText: _errors['email'] ?? '',
+                hasError: _errors['email'] != null,
+                onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),
               VInput(
                 myLocalController: _passwordController,
+                inputFocusNode: _focusNodes['password'],
                 topLabelText: 'Password',
                 hideText: _obscurePassword,
-                hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
-                onSubmitted: (_) => _submit(),
+                errorText: _errors['password'] ?? '',
+                hasError: _errors['password'] != null,
                 suffix: IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -182,13 +302,16 @@ class SignUpPageState extends State<SignUpPage> {
                     });
                   },
                 ),
+                onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),
               VInput(
                 myLocalController: _confirmPasswordController,
+                inputFocusNode: _focusNodes['confirmPassword'],
                 topLabelText: 'Confirm Password',
                 hideText: _obscurePassword,
-                hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
+                errorText: _errors['confirmPassword'] ?? '',
+                hasError: _errors['confirmPassword'] != null,
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 24),
