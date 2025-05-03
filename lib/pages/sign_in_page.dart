@@ -14,6 +14,8 @@ class SignInPage extends StatefulWidget {
 class SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   String? _errorMessage;
@@ -23,25 +25,22 @@ class SignInPageState extends State<SignInPage> {
 
   Future<void> _submit() async {
     if (_isLoading) return;
+
+    // Validate email and password fields
+    _validate('email');
+    _validate('password');
+
+    // If there are errors, return early
+    if (_emailError != null || _passwordError != null) {
+      _scrollToFirstError();
+      return;
+    }
+
     if (_formKey.currentState?.validate() ?? false) {
       final email = _emailController.text.trim();
-
-      if (!EmailValidator.validate(email)) {
-        setState(() {
-          _errorMessage = 'Please enter a valid email address.';
-        });
-        return;
-      }
-      setState(() {
-        _passwordError =
-            _passwordController.text.isEmpty ? 'Password is required' : null;
-      });
-
-      if (_emailError != null || _passwordError != null) return;
+      final password = _passwordController.text;
 
       setState(() => _isLoading = true);
-
-      final password = _passwordController.text;
 
       try {
         final response = await AuthService.signIn(email, password);
@@ -55,7 +54,7 @@ class SignInPageState extends State<SignInPage> {
           _errorMessage =
               e.message.contains('Invalid login credentials')
                   ? 'Invalid email or password. Please try again.'
-                  : e.message; // already user-friendly!
+                  : e.message;
           _isLoading = false;
         });
       } catch (e) {
@@ -64,6 +63,62 @@ class SignInPageState extends State<SignInPage> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _emailFocusNode.addListener(() {
+      if (!_emailFocusNode.hasFocus) _validate('email');
+    });
+
+    _passwordFocusNode.addListener(() {
+      if (!_passwordFocusNode.hasFocus) _validate('password');
+    });
+  }
+
+  void _validate(String field) {
+    if (field == 'email') {
+      if (_emailController.text.isEmpty) {
+        setState(() {
+          _emailError = 'Email is required';
+        });
+      } else if (!EmailValidator.validate(_emailController.text)) {
+        setState(() {
+          _emailError = 'Please enter a valid email address.';
+        });
+      } else {
+        setState(() {
+          _emailError = null;
+        });
+      }
+    } else if (field == 'password') {
+      if (_passwordController.text.isEmpty) {
+        setState(() {
+          _passwordError = 'Password is required';
+        });
+      } else {
+        setState(() {
+          _passwordError = null;
+        });
+      }
+    }
+  }
+
+  void _scrollToFirstError() {
+    final firstInvalid = {
+      'email': _emailError,
+      'password': _passwordError,
+    }.entries.firstWhere(
+      (entry) => entry.value != null,
+      orElse: () => const MapEntry('', null),
+    );
+
+    if (firstInvalid.key.isNotEmpty) {
+      final focusNode =
+          firstInvalid.key == 'email' ? _emailFocusNode : _passwordFocusNode;
+      focusNode.requestFocus();
     }
   }
 
@@ -116,6 +171,9 @@ class SignInPageState extends State<SignInPage> {
                 keyboardType: TextInputType.emailAddress,
                 onSubmitted: (_) => _submit(),
                 topLabelText: 'Email',
+                errorText: _emailError ?? '',
+                hasError: _emailError != null,
+                inputFocusNode: _emailFocusNode,
               ),
               const SizedBox(height: 16),
               VInput(
@@ -124,6 +182,9 @@ class SignInPageState extends State<SignInPage> {
                 hideText: _obscurePassword,
                 hintTextStyle: defaultVTheme.textStyles.uiLabelXSmall,
                 onSubmitted: (_) => _submit(),
+                errorText: _passwordError ?? '',
+                hasError: _passwordError != null,
+                inputFocusNode: _passwordFocusNode,
                 suffix: IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
