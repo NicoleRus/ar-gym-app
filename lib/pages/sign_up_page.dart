@@ -72,8 +72,15 @@ class SignUpPageState extends State<SignUpPage> {
 
       case 'birthDate':
         try {
-          final parsed = DateTime.parse(value);
-          if (parsed.isAfter(DateTime.now())) {
+          final parts = value.split('-');
+          DateTime? date;
+          if (value.length == 3) {
+            final month = int.parse(parts[0]);
+            final day = int.parse(parts[1]);
+            final year = int.parse(parts[2]);
+            date = DateTime(year, month, day);
+          }
+          if (date != null && date.isAfter(DateTime.now())) {
             _setError(field, 'Birth date cannot be in the future.');
           } else {
             _setError(field, null);
@@ -146,10 +153,9 @@ class SignUpPageState extends State<SignUpPage> {
 
       if (!mounted) return;
 
-      if (response.user != null) {
-        setState(() {
-          _isLoading = false;
-        });
+      if (response.user != null && mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+        setState(() => _isLoading = false);
       } else {
         setState(() {
           _errorMessage = 'Something went wrong. Please try again.';
@@ -163,7 +169,7 @@ class SignUpPageState extends State<SignUpPage> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Something went wrong during signup.';
+        _errorMessage = 'Something went wrong. Please try again.';
         _isLoading = false;
       });
     }
@@ -264,8 +270,8 @@ class SignUpPageState extends State<SignUpPage> {
               BirthDateField(
                 controller: _birthDateController,
                 focusNode: _focusNodes['birthDate']!,
-                hasError: _errors['birthdate'] != null,
-                errorText: _errors['birthdate'],
+                hasError: _errors['birthDate'] != null,
+                errorText: _errors['birthDate'],
                 onChanged: (_) => _validateField('birthDate'),
               ),
               const SizedBox(height: 16),

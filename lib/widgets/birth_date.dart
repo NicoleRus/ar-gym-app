@@ -25,6 +25,9 @@ class _BirthDateFieldState extends State<BirthDateField> {
   String _dateFieldText = '';
 
   Future<void> _showCalendar() async {
+    // 1) unfocus to avoid stray KeyUpEvents
+    widget.focusNode.unfocus();
+
     DateTime date = DateTime(1997, 4, 2);
     // Parse the entered date if it's valid
     try {
@@ -68,7 +71,7 @@ class _BirthDateFieldState extends State<BirthDateField> {
       setState(() {
         date = picked;
         final formatted =
-            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+            "${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}-${picked.year}";
         widget.controller.text = formatted;
       });
       widget.onChanged(widget.controller.text);
@@ -94,7 +97,6 @@ class _BirthDateFieldState extends State<BirthDateField> {
         // If the input is empty, return
         if (numericValue == null || numericValue.isEmpty) {
           widget.controller.text = '';
-          widget.onChanged('');
           return;
         }
         // Format as date (MM-DD-YYYY) if possible
@@ -108,7 +110,6 @@ class _BirthDateFieldState extends State<BirthDateField> {
 
         final formattedDate = buffer.toString();
         widget.controller.text = formattedDate;
-        widget.onChanged(formattedDate);
       },
     );
   }
