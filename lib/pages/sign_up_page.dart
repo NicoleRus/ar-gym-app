@@ -1,3 +1,4 @@
+import 'package:ar_app/widgets/birth_date.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -155,6 +156,11 @@ class SignUpPageState extends State<SignUpPage> {
           _isLoading = false;
         });
       }
+    } on AuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message; // already user-friendly!
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _errorMessage = 'Something went wrong during signup.';
@@ -255,24 +261,12 @@ class SignUpPageState extends State<SignUpPage> {
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),
-              VInput(
-                myLocalController: _birthDateController,
-                inputFocusNode: _focusNodes['birthDate'],
-                topLabelText: 'Birth Date',
-                errorText: _errors['birthDate'] ?? '',
-                hasError: _errors['birthDate'] != null,
-                onSubmitted: (_) async {
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime(2000, 1, 1),
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                  );
-                  if (pickedDate != null) {
-                    _birthDateController.text =
-                        pickedDate.toLocal().toString().split(' ')[0];
-                  }
-                },
+              BirthDateField(
+                controller: _birthDateController,
+                focusNode: _focusNodes['birthDate']!,
+                hasError: _errors['birthdate'] != null,
+                errorText: _errors['birthdate'],
+                onChanged: (_) => _validateField('birthDate'),
               ),
               const SizedBox(height: 16),
               VInput(
