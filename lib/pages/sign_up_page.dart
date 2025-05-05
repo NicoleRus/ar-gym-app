@@ -1,3 +1,4 @@
+import 'package:ar_app/pages/confirm_email.dart';
 import 'package:ar_app/widgets/birth_date.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
@@ -153,9 +154,16 @@ class SignUpPageState extends State<SignUpPage> {
 
       if (!mounted) return;
 
-      if (response.user != null && mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
-        setState(() => _isLoading = false);
+      if (response.user != null) {
+        setState(() {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ConfirmEmailPage(email: _emailController.text),
+            ),
+          );
+          _isLoading = false;
+        });
       } else {
         setState(() {
           _errorMessage = 'Something went wrong. Please try again.';

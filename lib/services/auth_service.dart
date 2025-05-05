@@ -45,4 +45,11 @@ class AuthService {
   static Future<void> signOut() async {
     await _client.auth.signOut();
   }
+
+  static Future<void> resendConfirmationEmail(String email) async {
+    await Supabase.instance.client.auth.resend(
+      type: OtpType.signup, // for signup confirmation
+      email: email, // the user’s email
+    );
+  }
 }
