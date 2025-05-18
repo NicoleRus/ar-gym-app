@@ -22,7 +22,7 @@ class MainLayout extends StatelessWidget {
     return Scaffold(
       backgroundColor: VColors.defaultSurface1,
       appBar: VAppBarDefault(showHamburger: showHamburger),
-      drawer: user != null ? NavDrawer() : null,
+      drawer: user != null ? NavDrawerPage() : null,
       body: Container(
         color: VColors.defaultSurface1,
         child: SingleChildScrollView(child: child),
