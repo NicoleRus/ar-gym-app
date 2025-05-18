@@ -1,3 +1,4 @@
+import 'package:ar_app/main_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:visa_nova_flutter/visa_nova_flutter.dart';
 import '../services/profile_service.dart';
@@ -81,70 +82,80 @@ class _ProfilePageState extends State<ProfilePage> {
       return const Center(child: VProgressLinear());
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Profile', style: defaultVTheme.textStyles.headline4),
-          const SizedBox(height: 16),
-          if (_error != null)
-            VSectionMessage(
-              sectionMessageState: SectionMessageState.error,
-              title: 'Error',
-              description: _error!,
+    return MainLayout(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Profile', style: defaultVTheme.textStyles.headline4),
+            const SizedBox(height: 16),
+            if (_error != null)
+              VSectionMessage(
+                sectionMessageState: SectionMessageState.error,
+                title: 'Error',
+                description: _error!,
+              ),
+            const SizedBox(height: 16),
+
+            // Readonly First Name
+            VInput(
+              myLocalController: TextEditingController(
+                text: _profile!.firstName,
+              ),
+              topLabelText: 'First Name',
+              isReadOnly: true,
             ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Read-only email
-          Text('Email', style: defaultVTheme.textStyles.subtitle2),
-          const SizedBox(height: 4),
-          VInput(
-            myLocalController: TextEditingController(text: _profile!.email),
-            isReadOnly: true,
-          ),
-          const SizedBox(height: 16),
+            // Readonly Last Name
+            VInput(
+              myLocalController: TextEditingController(
+                text: _profile!.lastName,
+              ),
+              topLabelText: 'Last Name',
+              isReadOnly: true,
+            ),
+            const SizedBox(height: 16),
 
-          // First Name
-          VInput(myLocalController: _firstNameCtrl, topLabelText: 'First Name'),
-          const SizedBox(height: 16),
+            // Readonly Birth Date
+            VInput(
+              myLocalController: TextEditingController(
+                text:
+                    _profile!.birthDate != null
+                        ? MaterialLocalizations.of(
+                          context,
+                        ).formatCompactDate(_profile!.birthDate!)
+                        : '',
+              ),
+              topLabelText: 'Birth Date',
+              isReadOnly: true,
+            ),
+            const SizedBox(height: 16),
 
-          // Last Name
-          VInput(myLocalController: _lastNameCtrl, topLabelText: 'Last Name'),
-          const SizedBox(height: 16),
+            // Read-only email
+            const SizedBox(height: 4),
+            VInput(
+              myLocalController: TextEditingController(text: _profile!.email),
+              topLabelText: 'Email',
+              isReadOnly: true,
+            ),
+            const SizedBox(height: 16),
 
-          // Birth Date
-          VInput(
-            myLocalController: _birthDateCtrl,
-            topLabelText: 'Birth Date',
-            isReadOnly: true,
-            tapped: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _profile?.birthDate ?? DateTime(2000),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              );
-              if (picked != null) {
-                _birthDateCtrl.text = picked.toIso8601String().split('T').first;
-              }
-            },
-          ),
-          const SizedBox(height: 16),
+            // Phone
+            VInput(myLocalController: _phoneCtrl, topLabelText: 'Phone'),
+            const SizedBox(height: 16),
 
-          // Phone
-          VInput(myLocalController: _phoneCtrl, topLabelText: 'Phone'),
-          const SizedBox(height: 16),
+            // Address
+            VInput(myLocalController: _addressCtrl, topLabelText: 'Address'),
+            const SizedBox(height: 24),
 
-          // Address
-          VInput(myLocalController: _addressCtrl, topLabelText: 'Address'),
-          const SizedBox(height: 24),
-
-          VButton(
-            onPressed: _isSaving ? null : _save,
-            child: Text(_isSaving ? 'Saving…' : 'Save Changes'),
-          ),
-        ],
+            VButton(
+              onPressed: _isSaving ? null : _save,
+              child: Text(_isSaving ? 'Saving…' : 'Save Changes'),
+            ),
+          ],
+        ),
       ),
     );
   }

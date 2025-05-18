@@ -1,3 +1,4 @@
+import 'package:ar_app/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'pages/auth_page.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const HomePage(),
         '/auth': (context) => const AuthPage(), // Add routes for other pages
+        '/profile': (context) => const ProfilePage(),
       },
     );
   }

@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:postgrest/postgrest.dart'; // for PostgrestResponse
 
 class Profile {
   final String id;
