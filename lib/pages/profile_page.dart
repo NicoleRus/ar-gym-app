@@ -88,7 +88,9 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Profile', style: defaultVTheme.textStyles.headline4),
+            Center(
+              child: Text('Profile', style: defaultVTheme.textStyles.headline4),
+            ),
             const SizedBox(height: 16),
             if (_error != null)
               VSectionMessage(
@@ -98,58 +100,103 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             const SizedBox(height: 16),
 
-            // Readonly First Name
-            VInput(
-              myLocalController: TextEditingController(
-                text: _profile!.firstName,
+            VListItem(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Name", style: defaultVTheme.textStyles.subtitle2),
+                  Text(
+                    '${_profile!.firstName ?? ''} ${_profile!.lastName ?? ''}',
+                    style: defaultVTheme.textStyles.uiLabelLarge,
+                  ),
+                ],
               ),
-              topLabelText: 'First Name',
-              isReadOnly: true,
             ),
-            const SizedBox(height: 16),
-
-            // Readonly Last Name
-            VInput(
-              myLocalController: TextEditingController(
-                text: _profile!.lastName,
+            VListItem(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Email", style: defaultVTheme.textStyles.subtitle2),
+                  Text(
+                    _profile!.email,
+                    style: defaultVTheme.textStyles.uiLabel,
+                  ),
+                ],
               ),
-              topLabelText: 'Last Name',
-              isReadOnly: true,
             ),
-            const SizedBox(height: 16),
-
-            // Readonly Birth Date
-            VInput(
-              myLocalController: TextEditingController(
-                text:
+            VListItem(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Birth date", style: defaultVTheme.textStyles.subtitle2),
+                  Text(
                     _profile!.birthDate != null
                         ? MaterialLocalizations.of(
                           context,
                         ).formatCompactDate(_profile!.birthDate!)
                         : '',
+                    style: defaultVTheme.textStyles.uiLabel,
+                  ),
+                ],
               ),
-              topLabelText: 'Birth Date',
-              isReadOnly: true,
             ),
-            const SizedBox(height: 16),
 
-            // Read-only email
-            const SizedBox(height: 4),
-            VInput(
-              myLocalController: TextEditingController(text: _profile!.email),
-              topLabelText: 'Email',
-              isReadOnly: true,
+            VListItem(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Phone", style: defaultVTheme.textStyles.subtitle2),
+                  Text(
+                    _profile!.phone ?? '',
+                    style: defaultVTheme.textStyles.uiLabel,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
 
-            // Phone
-            VInput(myLocalController: _phoneCtrl, topLabelText: 'Phone'),
-            const SizedBox(height: 16),
+            VListItem(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("Address", style: defaultVTheme.textStyles.subtitle2),
+                  Text(
+                    _profile!.address ?? '',
+                    style: defaultVTheme.textStyles.uiLabel,
+                  ),
+                ],
+              ),
+            ),
 
-            // Address
-            VInput(myLocalController: _addressCtrl, topLabelText: 'Address'),
-            const SizedBox(height: 24),
+            // VListItem(
+            //   hasTrailingIcon: true,
+            //   onTap: () {},
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     crossAxisAlignment: CrossAxisAlignment.center,
+            //     children: [
+            //       Text("Label", style: defaultVTheme.textStyles.baseTextStyle),
+            //       VIcon(
+            //         svgIcon: VIcons.securityLow,
+            //         iconHeight: 24,
+            //         iconWidth: 24,
+            //         iconColor: VColors.defaultActiveSubtle.withOpacity(0.50),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
+            // // Phone
+            // VInput(myLocalController: _phoneCtrl, topLabelText: 'Phone'),
+            // const SizedBox(height: 16)r,
+
+            // // Address
+            // VInput(myLocalController: _addressCtrl, topLabelText: 'Address'),
+            // const SizedBox(height: 24),
             VButton(
               onPressed: _isSaving ? null : _save,
               child: Text(_isSaving ? 'Saving…' : 'Save Changes'),

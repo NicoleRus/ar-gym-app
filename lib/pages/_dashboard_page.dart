@@ -33,15 +33,15 @@ class DashboardPage extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                DashboardCard(
-                  title: "View workouts",
-                  subtitle: "Downloads & Guides",
-                  description: "Access your resources",
-                  icon: VIcons.helpHigh,
-                  onTap: () {
-                    // Navigate to resources
-                  },
-                ),
+                // DashboardCard(
+                //   title: "View workouts",
+                //   subtitle: "Downloads & Guides",
+                //   description: "Access your resources",
+                //   icon: VIcons.helpHigh,
+                //   onTap: () {
+                //     // Navigate to resources
+                //   },
+                // ),
                 DashboardCard(
                   title: "Log nutrition",
                   subtitle: "Downloads & Guides",

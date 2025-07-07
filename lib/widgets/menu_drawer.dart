@@ -65,7 +65,7 @@ class NavDrawerPageState extends State<NavDrawerPage> {
                                 child: VIcon(
                                   svgIcon: VIcons.closeTiny,
                                   iconColor: VColors.defaultActiveSubtle
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                             ),

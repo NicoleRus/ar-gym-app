@@ -7,7 +7,7 @@ import 'package:visa_nova_flutter/visa_nova_flutter.dart';
 class VAppBarDefault extends StatelessWidget implements PreferredSizeWidget {
   final bool showHamburger;
 
-  const VAppBarDefault({Key? key, this.showHamburger = true}) : super(key: key);
+  const VAppBarDefault({super.key, this.showHamburger = true});
   @override
   Size get preferredSize => const Size.fromHeight(60);
 

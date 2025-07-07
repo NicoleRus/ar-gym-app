@@ -1,5 +1,6 @@
 import 'package:ar_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:visa_nova_flutter/visa_nova_flutter.dart';
 import 'package:visa_nova_icons_flutter/svg_content.dart';
 
@@ -12,7 +13,9 @@ class ConfirmEmailPage extends StatelessWidget {
       await AuthService.resendConfirmationEmail(email);
     } catch (e) {
       // Handle error if needed
-      print('Error resending confirmation email: $e');
+      if (kDebugMode) {
+        print('Error resending confirmation email: $e');
+      }
     }
   }
 
